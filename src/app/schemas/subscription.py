@@ -35,6 +35,7 @@ class SubscriptionRead(SubscriptionCreate):
 
 
 class SubscriptionUpdate(BaseModel):
+    id: UUID
     service_name: ServiceName | None = None
     service_plan: str | None = None
     price: Decimal | None = Field(default=None, gt=0)
