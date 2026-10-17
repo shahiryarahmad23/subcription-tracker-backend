@@ -17,7 +17,7 @@ class Subscription(Base):
         nullable=False,
         default=uuid.uuid4,
     )
-    service_name: Mapped[str] = mapped_column(String, nullable=False)
+    service_name: Mapped[str] = mapped_column(String, nullable=False,unique=True)
     service_plan: Mapped[str] = mapped_column(String, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String, nullable=False)

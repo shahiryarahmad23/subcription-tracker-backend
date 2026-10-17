@@ -17,7 +17,12 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Percent signs must be escaped for ConfigParser interpolation.
-config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.database_url.render_as_string(
+        hide_password=False
+    ).replace("%", "%%"),
+)
 
 target_metadata = Base.metadata
 
