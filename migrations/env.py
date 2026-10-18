@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config, pool
 
 from app.core.config import settings
 from app.db.base import Base
-from app.models import Subscription  # noqa: F401
+from app.models import Subscription, User  # noqa: F401
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -17,7 +17,12 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 # Percent signs must be escaped for ConfigParser interpolation.
-config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
+config.set_main_option(
+    "sqlalchemy.url",
+    settings.database_url.render_as_string(
+        hide_password=False
+    ).replace("%", "%%"),
+)
 
 target_metadata = Base.metadata
 

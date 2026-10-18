@@ -2,8 +2,8 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, Integer, Numeric, String, Uuid, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Uuid, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
 
@@ -17,7 +17,7 @@ class Subscription(Base):
         nullable=False,
         default=uuid.uuid4,
     )
-    service_name: Mapped[str] = mapped_column(String, nullable=False)
+    service_name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
     service_plan: Mapped[str] = mapped_column(String, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String, nullable=False)
@@ -37,3 +37,9 @@ class Subscription(Base):
         server_default=func.now(),
         onupdate=func.now(),
     )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("users.id"),
+        nullable=False,
+    )
+    user: Mapped["User"] = relationship(back_populates="subscriptions")
