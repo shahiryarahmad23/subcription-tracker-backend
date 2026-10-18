@@ -6,10 +6,14 @@ from app.schemas.subscription import (
     SubscriptionUpdate,
 )
 
+from app.schemas.user import UserCreate, UserRead
+
 __all__ = [
     "Currency",
     "ServiceName",
     "SubscriptionCreate",
     "SubscriptionRead",
     "SubscriptionUpdate",
+    "UserCreate",
+    "UserRead",
 ]

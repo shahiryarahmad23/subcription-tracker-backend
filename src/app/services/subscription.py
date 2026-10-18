@@ -9,7 +9,9 @@ from app.schemas.subscription import SubscriptionCreate, SubscriptionUpdate
 
 
 def create_subscription(db: Session, data: SubscriptionCreate) -> Subscription:
-    subscription = Subscription(**data.model_dump())
+    payload = data.model_dump()
+    payload["user_id"] = UUID(str(payload["user_id"]))
+    subscription = Subscription(**payload)
     try:
         db.add(subscription)
         db.commit()

@@ -20,6 +20,7 @@ Currency = Literal["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "INR", "PKR"]
 
 
 class SubscriptionCreate(BaseModel):
+    user_id: UUID
     service_name: ServiceName
     service_plan: str
     price: Decimal = Field(gt=0)
@@ -36,6 +37,7 @@ class SubscriptionRead(SubscriptionCreate):
 
 class SubscriptionUpdate(BaseModel):
     id: UUID
+    user_id: UUID | None = None
     service_name: ServiceName | None = None
     service_plan: str | None = None
     price: Decimal | None = Field(default=None, gt=0)
