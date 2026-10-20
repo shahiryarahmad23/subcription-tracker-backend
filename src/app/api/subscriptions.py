@@ -14,6 +14,7 @@ from app.schemas.subscription import (
 from app.services.subscription import (
     create_subscription as subscription_create,
     delete_subscription as subscription_delete,
+    list_subscriptions as subscriptions_read,
     read_subscription as subscription_read,
     update_subscription as subscription_update,
 )
@@ -43,6 +44,23 @@ def create_subscription(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Database error",
         ) from exc
+
+
+@router.get("/", response_model=list[SubscriptionRead], status_code=status.HTTP_200_OK)
+def read_subscriptions(db: Session = Depends(get_db)):
+    try:
+        subscriptions = subscriptions_read(db)
+    except OperationalError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Database error",
+        ) from exc
+    if not subscriptions:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No subscriptions found",
+        )
+    return subscriptions
 
 
 @router.get("/{id}", response_model=SubscriptionRead)

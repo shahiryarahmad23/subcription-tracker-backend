@@ -6,6 +6,8 @@ class Settings(BaseSettings):
     postgres_user: str
     postgres_password: str
     postgres_db: str
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -18,8 +20,8 @@ class Settings(BaseSettings):
             "postgresql+psycopg",
             username=self.postgres_user,
             password=self.postgres_password,
-            host="localhost",
-            port=5432,
+            host=self.postgres_host,
+            port=self.postgres_port,
             database=self.postgres_db,
         )
 

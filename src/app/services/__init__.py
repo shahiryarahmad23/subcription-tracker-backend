@@ -1,16 +1,19 @@
 from app.services.subscription import (
     create_subscription,
     delete_subscription,
+    list_subscriptions,
     read_subscription,
     update_subscription,
 )
-
-from app.services.user import create_user
+from app.services.user import list_users, login_user, register_user
 
 __all__ = [
     "create_subscription",
-    "create_user",
     "delete_subscription",
+    "list_subscriptions",
+    "list_users",
+    "login_user",
     "read_subscription",
+    "register_user",
     "update_subscription",
 ]

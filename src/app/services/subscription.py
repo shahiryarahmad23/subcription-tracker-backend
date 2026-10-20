@@ -1,5 +1,6 @@
 from uuid import UUID
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import NoResultFound
@@ -30,6 +31,13 @@ def read_subscription(db: Session, id: UUID) -> Subscription:
     if subscription is None:
         raise NoResultFound("Subscription not found")
     return subscription
+
+
+def list_subscriptions(db: Session) -> list[Subscription]:
+    try:
+        return list(db.scalars(select(Subscription)))
+    except OperationalError:
+        raise
 
 
 def update_subscription(db: Session, data: SubscriptionUpdate) -> Subscription:
