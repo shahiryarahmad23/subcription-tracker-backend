@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_host: str = "localhost"
     postgres_port: int = 5432
+    access_token_secret: str
+    access_token_expire_minutes: int
+    refresh_token_expire_minutes: int
 
     model_config = SettingsConfigDict(
         env_file=".env",
