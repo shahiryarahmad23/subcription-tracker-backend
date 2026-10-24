@@ -1,9 +1,11 @@
+from uuid import UUID
+
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
-from app.core.security import hash_password, verify_password
-from app.models.user import User
+from app.core.security import TokenError, decode_access_token, hash_password, verify_password
+from app.models.user import User, UserRole
 from app.schemas.user import UserCreate, UserLogin
 
 
@@ -16,6 +18,14 @@ class EmailAlreadyExists(Exception):
 
 
 class InvalidCredentials(Exception):
+    pass
+
+
+class NotAuthenticated(Exception):
+    pass
+
+
+class NotAuthorized(Exception):
     pass
 
 
@@ -48,6 +58,27 @@ def login_user(db: Session, data: UserLogin) -> User:
         raise
     if user is None or not verify_password(data.password, user.hashed_password):
         raise InvalidCredentials
+    return user
+
+
+def get_current_user(db: Session, token: str) -> User:
+    try:
+        payload = decode_access_token(token)
+        user_id = UUID(payload["sub"])
+    except (TokenError, ValueError) as exc:
+        raise NotAuthenticated from exc
+    try:
+        user = db.get(User, user_id)
+    except OperationalError:
+        raise
+    if user is None:
+        raise NotAuthenticated
+    return user
+
+
+def authorize_user(user: User, *roles: UserRole) -> User:
+    if user.role not in roles:
+        raise NotAuthorized
     return user
 
 

@@ -3,6 +3,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict
 
+from app.models.user import UserRole
+
 
 class UserCreate(BaseModel):
     username: str
@@ -22,3 +24,14 @@ class UserRead(BaseModel):
     id: UUID
     username: str
     email: str
+    role: UserRole
+
+
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class LogoutRequest(BaseModel):
+    refresh_token: str

@@ -1,3 +1,4 @@
+from app.services.auth import rotate_refresh_session, start_refresh_session
 from app.services.subscription import (
     create_subscription,
     delete_subscription,
@@ -15,5 +16,7 @@ __all__ = [
     "login_user",
     "read_subscription",
     "register_user",
+    "rotate_refresh_session",
+    "start_refresh_session",
     "update_subscription",
 ]

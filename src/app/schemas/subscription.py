@@ -20,7 +20,6 @@ Currency = Literal["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "INR", "PKR"]
 
 
 class SubscriptionCreate(BaseModel):
-    user_id: UUID
     service_name: ServiceName
     service_plan: str
     price: Decimal = Field(gt=0)
@@ -29,15 +28,23 @@ class SubscriptionCreate(BaseModel):
     duration: int = Field(gt=0)
 
 
+class SubscriptionOwner(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    username: str
+
+
 class SubscriptionRead(SubscriptionCreate):
     model_config = ConfigDict(from_attributes=True)
 
     id: UUID
+    user_id: UUID
+    user: SubscriptionOwner
 
 
 class SubscriptionUpdate(BaseModel):
     id: UUID
-    user_id: UUID | None = None
     service_name: ServiceName | None = None
     service_plan: str | None = None
     price: Decimal | None = Field(default=None, gt=0)

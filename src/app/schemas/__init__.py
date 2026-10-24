@@ -6,7 +6,7 @@ from app.schemas.subscription import (
     SubscriptionUpdate,
 )
 
-from app.schemas.user import UserCreate, UserLogin, UserRead
+from app.schemas.user import LogoutRequest, TokenPair, UserCreate, UserLogin, UserRead
 
 __all__ = [
     "Currency",
@@ -17,4 +17,6 @@ __all__ = [
     "UserCreate",
     "UserLogin",
     "UserRead",
+    "LogoutRequest",
+    "TokenPair",
 ]

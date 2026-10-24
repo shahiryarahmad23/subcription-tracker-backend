@@ -2,17 +2,17 @@ from uuid import UUID
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.orm.exc import NoResultFound
 
 from app.models.subscription import Subscription
 from app.schemas.subscription import SubscriptionCreate, SubscriptionUpdate
 
 
-def create_subscription(db: Session, data: SubscriptionCreate) -> Subscription:
-    payload = data.model_dump()
-    payload["user_id"] = UUID(str(payload["user_id"]))
-    subscription = Subscription(**payload)
+def create_subscription(
+    db: Session, data: SubscriptionCreate, user_id: UUID
+) -> Subscription:
+    subscription = Subscription(**data.model_dump(), user_id=user_id)
     try:
         db.add(subscription)
         db.commit()
@@ -24,8 +24,13 @@ def create_subscription(db: Session, data: SubscriptionCreate) -> Subscription:
 
 
 def read_subscription(db: Session, id: UUID) -> Subscription:
+    statement = (
+        select(Subscription)
+        .options(joinedload(Subscription.user))
+        .where(Subscription.id == id)
+    )
     try:
-        subscription = db.get(Subscription, id)
+        subscription = db.scalar(statement)
     except OperationalError:
         raise
     if subscription is None:
@@ -33,9 +38,14 @@ def read_subscription(db: Session, id: UUID) -> Subscription:
     return subscription
 
 
-def list_subscriptions(db: Session) -> list[Subscription]:
+def list_subscriptions(
+    db: Session, user_id: UUID | None = None
+) -> list[Subscription]:
+    statement = select(Subscription).options(joinedload(Subscription.user))
+    if user_id is not None:
+        statement = statement.where(Subscription.user_id == user_id)
     try:
-        return list(db.scalars(select(Subscription)))
+        return list(db.scalars(statement).unique())
     except OperationalError:
         raise
 
