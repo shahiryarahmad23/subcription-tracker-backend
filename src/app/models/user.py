@@ -2,7 +2,7 @@ import enum
 import uuid
 from datetime import date, datetime
 
-from sqlalchemy import Date, DateTime, Enum, String, Uuid, func
+from sqlalchemy import Boolean, Date, DateTime, Enum, String, Uuid, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -35,6 +35,12 @@ class User(Base):
         nullable=False,
         default=UserRole.USER,
         server_default=UserRole.USER.value,
+    )
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true",
     )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),

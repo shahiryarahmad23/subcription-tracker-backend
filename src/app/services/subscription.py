@@ -9,6 +9,14 @@ from app.models.subscription import Subscription
 from app.schemas.subscription import SubscriptionCreate, SubscriptionUpdate
 
 
+class InvalidSubscriptionCursor(Exception):
+    """The cursor no longer matches a subscription row."""
+
+
+class ForbiddenSubscriptionCursor(Exception):
+    """The cursor belongs to another user's subscription."""
+
+
 def create_subscription(
     db: Session, data: SubscriptionCreate, user_id: UUID
 ) -> Subscription:
@@ -48,6 +56,38 @@ def list_subscriptions(
         return list(db.scalars(statement).unique())
     except OperationalError:
         raise
+
+
+def list_my_subscriptions(
+    db: Session,
+    user_id: UUID,
+    *,
+    cursor: UUID | None = None,
+    limit: int = 20,
+) -> tuple[list[Subscription], UUID | None]:
+    if cursor is not None:
+        anchor = db.get(Subscription, cursor)
+        if anchor is None:
+            raise InvalidSubscriptionCursor
+        if anchor.user_id != user_id:
+            raise ForbiddenSubscriptionCursor
+
+    statement = (
+        select(Subscription)
+        .options(joinedload(Subscription.user))
+        .where(Subscription.user_id == user_id)
+        .order_by(Subscription.id)
+    )
+    if cursor is not None:
+        statement = statement.where(Subscription.id > cursor)
+    try:
+        rows = list(db.scalars(statement.limit(limit + 1)).unique())
+    except OperationalError:
+        raise
+    has_more = len(rows) > limit
+    page = rows[:limit]
+    next_cursor = page[-1].id if has_more and page else None
+    return page, next_cursor
 
 
 def update_subscription(db: Session, data: SubscriptionUpdate) -> Subscription:

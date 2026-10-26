@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Uuid, func
+from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, Uuid, func, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -11,13 +11,21 @@ from app.db.base import Base
 class Subscription(Base):
     __tablename__ = "subscriptions"
 
+    __table_args__ = ( 
+        UniqueConstraint(
+            "user_id",
+            "service_name",
+            name="uix_user_service",
+        ),
+    )
+
     id: Mapped[uuid.UUID] = mapped_column(
         Uuid(as_uuid=True),
         primary_key=True,
         nullable=False,
         default=uuid.uuid4,
     )
-    service_name: Mapped[str] = mapped_column(String, nullable=False, unique=True)
+    service_name: Mapped[str] = mapped_column(String, nullable=False)
     service_plan: Mapped[str] = mapped_column(String, nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     currency: Mapped[str] = mapped_column(String, nullable=False)
